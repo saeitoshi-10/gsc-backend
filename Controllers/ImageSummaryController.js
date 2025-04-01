@@ -15,11 +15,12 @@ export const generateGeminiSummary = async (req, res) => {
     }
 
     const base64Image = imageToBase64(req.file.path);
+    const mimeType = (req.file.path).endsWith(".png") ? "image/png" : "image/jpeg";
 
     const model = genAI.getGenerativeModel({ model: process.env.MODEL_NAME });
     const result = await model.generateContent([
       { text: "Summarize the content of this image." },
-      { inlineData: { mimeType: req.file.mimetype, data: base64Image } },
+      { inlineData: { mimeType: mimeType, data: base64Image } },
     ]);
 
     const summary = result.response.text();
