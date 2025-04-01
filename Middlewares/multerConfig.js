@@ -1,4 +1,4 @@
-import multer, { diskStorage } from "multer";\
+import multer, { diskStorage } from "multer";
 import fs from "fs";
 
 if (!fs.existsSync('uploads')) {
