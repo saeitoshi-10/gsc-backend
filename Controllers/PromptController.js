@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-async function getGeminiResponse(prompt) {
+export async function getGeminiResponse(prompt) {
 
   try {
 
