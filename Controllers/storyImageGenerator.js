@@ -1,5 +1,6 @@
 import { config } from "dotenv";
 import { getGeminiResponse } from "./PromptController.js";
+import { getImage } from "./imageGeneratorController.js";
 
 config();
 
@@ -32,19 +33,26 @@ async function generateMultiplePrompts(prompt){
 export const generateStoryMode = async (req, res) => {
   try {
 
-    const { prompt } = req.body; 
+    const { userId, lessonId, prompt } = req.body; 
 
     if (!prompt) {
       return res.status(400).json({ error: "Prompt is required" });
     }
 
-    const response = await generateMultiplePrompts(prompt);
+    const storyPrompts = await generateMultiplePrompts(prompt);
 
-    if (response.error) {
+    if (storyPrompts.error) {
         return res.status(500).json({ error: response.error });
     }    
 
-    res.status(200).json(response);
+    const generatedImages = await Promise.all(
+      storyPrompts.map(async (p) => {
+        const { imageUrl, imageFilename } = await getImage(userId, lessonId, p);
+        return { imageUrl, imageFilename };
+      })
+    );
+  
+    res.status(200).json({ response: generatedImages });
 
   } 
   catch (error) {
