@@ -46,7 +46,7 @@ export const generateStoryMode = async (req, res) => {
     }    
 
     const generatedImages = await Promise.all(
-      storyPrompts.map(async (p) => {
+      storyPrompts.prompts.map(async (p) => {
         const { imageUrl, imageFilename } = await getImage(userId, lessonId, p);
         return { imageUrl, imageFilename };
       })

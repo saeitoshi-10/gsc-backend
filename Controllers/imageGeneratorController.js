@@ -62,11 +62,9 @@ export const getImage = async (userId, lessonId, prompt) => {
     return { imageUrl, imageFilename };
   } catch (error) {
     console.error("Gemini API or Cloud Storage Error:", error);
-    res
-      .status(500)
-      .json({
-        error: "Failed to generate and store image",
-        details: error.message,
-      });
+    res.status(500).json({
+      error: "Failed to generate and store image",
+      details: error.message,
+    });
   }
 };
