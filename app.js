@@ -5,6 +5,7 @@ import { generateGeminiResponse } from "./Controllers/PromptController.js";
 import { generateGeminiChat } from "./Controllers/ChatController.js";
 import { generateGeminiSummary } from "./Controllers/ImageSummaryController.js";
 import { generateGeminiImage } from "./Controllers/imageGeneratorController.js";
+import { generateStoryMode } from "./Controllers/storyImageGenerator.js";
 
 config();
 
@@ -17,6 +18,7 @@ app.post("/prompt", generateGeminiResponse);
 app.post("/chat", generateGeminiChat);
 app.post("/image-summary", upload.single("image"), generateGeminiSummary);
 app.post("/imagen",generateGeminiImage);
+app.post("/story-mode", generateStoryMode);
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
