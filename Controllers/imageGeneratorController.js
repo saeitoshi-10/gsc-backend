@@ -7,18 +7,23 @@ config();
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const storage = new Storage();
-
 const bucketName = "gsc-bucket-007";
 const bucket = storage.bucket(bucketName);
 
 export const generateGeminiImage = async (req, res) => {
+  const { userId, lessonId, prompt } = req.body;
+
+  if (!prompt) {
+    return res.status(400).json({ error: "Prompt is required" });
+  }
+
+  const { imageUrl, imageFilename } = await getImage(userId, lessonId, prompt);
+
+  res.json({ imageUrl, imageFilename });
+};
+
+export const getImage = async (userId, lessonId, prompt) => {
   try {
-    const { userId, lessonId, prompt } = req.body; 
-
-    if (!prompt) {
-      return res.status(400).json({ error: "Prompt is required" });
-    }
-
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash-exp-image-generation",
       contents: prompt,
@@ -35,7 +40,6 @@ export const generateGeminiImage = async (req, res) => {
         const imageData = part.inlineData.data;
         const buffer = Buffer.from(imageData, "base64");
 
-        
         const timestamp = Date.now();
         const storageFilename = `${userId}/${lessonId}/gemini-image-${timestamp}.png`;
         const file = bucket.file(storageFilename);
@@ -44,22 +48,25 @@ export const generateGeminiImage = async (req, res) => {
           metadata: { contentType: "image/png" },
         });
 
-        
-
         imageUrl = `https://storage.googleapis.com/${bucketName}/${storageFilename}`;
-        imageFilename = storageFilename; 
+        imageFilename = storageFilename;
         break;
       }
     }
 
     if (!imageUrl) {
-      return res.status(500).json({ error: "Failed to generate or store image" });
+      return res
+        .status(500)
+        .json({ error: "Failed to generate or store image" });
     }
-
-    res.json({ imageUrl, imageFilename });
-
+    return { imageUrl, imageFilename };
   } catch (error) {
     console.error("Gemini API or Cloud Storage Error:", error);
-    res.status(500).json({ error: "Failed to generate and store image", details: error.message });
+    res
+      .status(500)
+      .json({
+        error: "Failed to generate and store image",
+        details: error.message,
+      });
   }
 };
