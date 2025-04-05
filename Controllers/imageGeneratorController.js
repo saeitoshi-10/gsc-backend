@@ -24,43 +24,43 @@ export const generateGeminiImage = async (req, res) => {
 
 export const getImage = async (userId, lessonId, prompt) => {
   try {
-    const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp-image-generation",
-      contents: prompt,
+    const response = await ai.models.generateImages({
+      model: "imagen-3.0-generate-002",
+      prompt: prompt,
       config: {
-        responseModalities: ["Text", "Image"],
+        numberOfImages: 1,
       },
     });
 
     let imageFilename = null;
     let imageUrl = null;
 
-    for (const part of response.candidates[0].content.parts) {
-      if (part.inlineData) {
-        const imageData = part.inlineData.data;
-        const buffer = Buffer.from(imageData, "base64");
+    for (const generatedImage of response.generatedImages) {
+      let imgBytes = generatedImage.image.imageBytes;
+      const buffer = Buffer.from(imgBytes, "base64");
 
-        const timestamp = Date.now();
-        const storageFilename = `${userId}/${lessonId}/gemini-image-${timestamp}.png`;
-        const file = bucket.file(storageFilename);
+      const timestamp = Date.now();
+      const storageFilename = `${userId}/${lessonId}/gemini-image-${timestamp}.png`;
+      const file = bucket.file(storageFilename);
 
-        await file.save(buffer, {
-          metadata: { contentType: "image/png" },
-        });
+      await file.save(buffer, {
+        metadata: { contentType: "image/png" },
+      });
 
-        imageUrl = `https://storage.googleapis.com/${bucketName}/${storageFilename}`;
-        imageFilename = storageFilename;
-        break;
-      }
+      imageUrl = `https://storage.googleapis.com/${bucketName}/${storageFilename}`;
+      imageFilename = storageFilename;
+      break;
     }
 
     if (!imageUrl) {
-      throw new Error("Failed to generate or store image");
+      throw new Error(
+        "Failed to generate or store image " + JSON.stringify(response)
+      );
     }
 
     return { imageUrl, imageFilename };
   } catch (error) {
     console.error("Gemini API or Cloud Storage Error:", error);
-    throw new Error(error.message || "Unknown error occurred during image generation");
+    return error.message || "Unknown error occurred during image generation";
   }
 };
