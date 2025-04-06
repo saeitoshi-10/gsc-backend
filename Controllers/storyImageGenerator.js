@@ -1,37 +1,43 @@
+// Import necessary modules and configurations
 import { config } from "dotenv";
 import { getGeminiResponse } from "./PromptController.js";
 import { getImage } from "./imageGeneratorController.js";
 
+// Load environment variables from .env file
 config();
 
+// Function to generate multiple meme prompts for a story mode
 async function generateMultiplePrompts(prompt,level,subject) {
+  // Instruction prompt for the Gemini API to generate meme ideas
   const instruction = `Generate 4 unique ADHD-friendly educational meme ideas based on the topic: "${prompt}" for a student in  ${level}, on the topic of ${subject}.
 
 Each meme should include:
-1. A short **fact-based meme caption** that is funny, clear, and educational (max 20 words).
-2. A **visual description** of what the meme image should show — creative, directly tied to the concept, and simple enough for AI image generation.
+  1. A short **fact-based meme caption** that is funny, clear, and educational (max 20 words).
+  2. A **visual description** of what the meme image should show — creative, directly tied to the concept, and simple enough for AI image generation.
 
 The memes should help students understand and remember the concept using humor, visual association, and relatable context.
 Keep the tone light, slightly exaggerated if helpful, and always factually correct.
 
 If it is suitable try to structure the prompts in a way that they can be used for a story mode, where each meme builds on the previous one.
 
-Return the response in this exact JSON format:
-{
-  "memes": [
-    {
-      "caption": "Funny educational caption here",
-      "visual": "Description of what the image should depict"
-    },
-    {
-      "caption": "Another caption",
-      "visual": "Another visual description"
-    },
-    ...
-  ]
-}`;
+  Return the response in this exact JSON format:
+  {
+    "memes": [
+      {
+        "caption": "Funny educational caption here",
+        "visual": "Description of what the image should depict"
+      },
+      {
+        "caption": "Another caption",
+        "visual": "Another visual description"
+      },
+      ...
+    ]
+  }`;
 
+  // Get response from Gemini API using the generated instruction
   let newResponse = await getGeminiResponse(instruction);
+  // Clean up the response by removing any markdown formatting (
   newResponse = newResponse
     .trim()
     .replace(/^```json|```$/g, "")
