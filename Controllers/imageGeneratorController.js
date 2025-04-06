@@ -26,9 +26,9 @@ export const generateGeminiImage = async (req, res) => {
     return res.status(400).json({ error: "Prompt is required" });
   }
 
-  const { imageUrl, imageFilename } = await getImage(userId, lessonId, prompt); // Call the getImage function to generate and store the image
+  const { imageUrl} = await getImage(userId, lessonId, prompt); // Call the getImage function to generate and store the image
 
-  res.json({ imageUrl, imageFilename });
+  res.json({ imageUrl });
 };
 
 // Define an asynchronous function to generate an image using the Gemini API and store it in Google Cloud Storage
@@ -44,7 +44,7 @@ export const getImage = async (userId, lessonId, prompt) => {
     });
 
     // Initialize variables to store the image filename and URL
-    let imageFilename = null;
+
     let imageUrl = null;
 
     // Iterate over the generated images (should be only one in this case)
@@ -67,8 +67,6 @@ export const getImage = async (userId, lessonId, prompt) => {
 
       // Construct the public URL for the stored image
       imageUrl = `https://storage.googleapis.com/${bucketName}/${storageFilename}`;
-      // Store the filename
-      imageFilename = storageFilename;
       break;
     }
 
@@ -79,7 +77,7 @@ export const getImage = async (userId, lessonId, prompt) => {
       );
     }
 
-    return { imageUrl, imageFilename };
+    return { imageUrl};
   } catch (error) { // Catch any errors that occur during the process
     console.error("Gemini API or Cloud Storage Error:", error);
     // Return an error message, either from the caught error or a generic message

@@ -103,12 +103,12 @@ export const generateStoryMode = async (req, res) => {
     // Generate images for each meme using the visual descriptions
     const generatedImages = await Promise.all(
       storyPrompts.memes.map(async (meme) => {
-        const { imageUrl, imageFilename } = await getImage(
+        const { imageUrl} = await getImage(
           userId,
           lessonId,
           meme.visual
         );
-        return { imageUrl, imageFilename, caption: meme.caption }; // Return the image details along with the caption
+        return { imageUrl,caption: meme.caption }; // Return the image details along with the caption
       })
     );
 
